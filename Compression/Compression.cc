@@ -9,11 +9,12 @@
 #include <bitset>
 using namespace std;
 
-struct node {
+struct node 
+{
 	char data;
 	unsigned freq;
 	node *left, *right;
-	bool flag = 1;
+	bool flag = 1;//flag==1 indicates it is a leaf, flag==0 indicates it is not a leaf
 	node(bool flag,char data, unsigned freq)
 	{
 
@@ -23,7 +24,8 @@ struct node {
 		this->freq = freq;
 	}
 };
-struct compare {
+struct compare //for priority_queue
+{
 
 	bool operator()(node* l, node* r)
 
@@ -74,7 +76,7 @@ void HuffmanCodes(map<char, int> freq, priority_queue<node*, vector<node*>, comp
 
 }
 
-void writefreq(ofstream& ofs, map<char, int> freq)
+void writefreq(ofstream& ofs, map<char, int> freq)//write numofleaf,then write a char and its freq, without any blankspace
 {
 	char *temp;
 	int numofleaf = freq.size();
@@ -153,10 +155,7 @@ void createcache(vector<char> &cache, map<char, int>& freq, ifstream& ifs, map<c
 	char c;
 	while (ifs.get(c))
 	{
-		
-			//std::cout << huffmancode[c] << endl;
-			cache.insert(cache.end(), huffmancode[c].begin(), huffmancode[c].end());
-		
+			cache.insert(cache.end(), huffmancode[c].begin(), huffmancode[c].end());	
 	}
 	
 
@@ -168,12 +167,11 @@ void collectbits(vector<char> &cache, ifstream& ifs)
 	int cachesize = 0;
 	char blank;
 	char* temp;
-	temp = (char*)&cachesize;
+	temp = (char*)&cachesize;//cachesize is used to determine the last byte,last byte store some bits and the remain is all 1
 	for (int i = 0; i < 4; ++i)
 	{
 		ifs.get(temp[i]);
 	}
-	//std::cout << cachesize << endl;
 	while (1)
 	{
 		if (ifs.get(tempbyte))
@@ -195,12 +193,12 @@ void collectbits(vector<char> &cache, ifstream& ifs)
 				}
 				
 			}
-			else
+			else//here ia the last byte
 			{
 				int size = cache.size();
 				for (int i = 0; i < cachesize-size; i++)
 				{
-					//std::cout << int(((tempbyte >> i) & 1))<<endl;
+					
 					if (int(((tempbyte >> i) & 1)) == 1)
 					{
 						cache.push_back('1');
@@ -234,7 +232,6 @@ void createbits(ofstream &ofs, vector<char> &cache)
     {
 		ofs.put(temp[i]);
 	}
-	//std::cout << cachesize << endl;
 	for (int i = 0; i < cache.size(); i++)
 	{
 		char mask = 1;
@@ -298,9 +295,8 @@ void writefile(ofstream& ofs, vector<char>& cache, map<char, string>& huffmancod
 {
 	map<string, char> huffmancodere;
 	map<char, string>::iterator it;
-	for (it = huffmancode.begin(); it != huffmancode.end(); it++)
+	for (it = huffmancode.begin(); it != huffmancode.end(); it++)//"reverse" the map
 	{
-		//std::cout << it->first << " " << it->second << endl;
 		huffmancodere[it->second] = it->first;
 	}
 	int i = 0;
@@ -309,12 +305,11 @@ void writefile(ofstream& ofs, vector<char>& cache, map<char, string>& huffmancod
 	while (i < cache.size())
 	{
 		
-		//std::cout << temp << endl;
-		temp = temp + cache[i];
+		
+		temp = temp + cache[i];//put the char at the end of string
 		if (huffmancodere.count(temp)) 
 		{
 			ofs.put(huffmancodere[temp]);
-			//std::cout << temp << endl;
 			temp.clear();
 		}
 		
@@ -348,7 +343,6 @@ void compress(string inputFilename, string outputFilename) {
 	writefreq(ofs, freq);
 	vector<char> cache;
 	ifs.open(inputFilename.c_str(), ios::in | ios::binary);
-	//std::cout << huffmancode.size() << endl;
 	createcache(cache,freq, ifs, huffmancode);
 	createbits(ofs, cache);
 	ofs.close();
@@ -404,22 +398,6 @@ int main(int argc, char* argv[]) {
   return 0;
 }
 
-/*int main(int argc, char* argv[]) {
-  int i;
-  string inputFilename, outputFilename;
-  inputFilename = "test.txt";
-  outputFilename = "test1.mid";
-  bool isDecompress = true;
-  for (i = 1; i < argc; i++) {
-	if (argv[i] == string("-d")) isDecompress = true;
-	else if (inputFilename == "") inputFilename = argv[i];
-	else if (outputFilename == "") outputFilename = argv[i];
-	else usage(argv[0]);
-  }
-  if (outputFilename == "") usage(argv[0]);
-  if (isDecompress) decompress(inputFilename, outputFilename);
-  else compress(inputFilename, outputFilename);
-  return 0;
-}*/
+
 
 
